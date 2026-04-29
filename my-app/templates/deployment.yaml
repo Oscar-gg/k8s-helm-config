@@ -6,6 +6,8 @@ metadata:
     {{- include "my-app.labels" . | nindent 4 }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
+  strategy:
+    type: Recreate
   replicas: {{ .Values.replicaCount }}
   {{- end }}
   selector:
@@ -62,7 +64,10 @@ spec:
           {{- end }}
       {{- with .Values.volumes }}
       volumes:
-        {{- toYaml . | nindent 8 }}
+        - name: san-block-data
+          persistentVolumeClaim:
+            claimName: {{ include "my-app.fullname" . }}-pvc
+        # {{- toYaml . | nindent 8 }}
       {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
